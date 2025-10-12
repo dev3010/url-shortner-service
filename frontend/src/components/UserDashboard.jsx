@@ -1,8 +1,21 @@
 import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Paper, Alert, Grid, Card, CardContent, Box } from '@mui/material';
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Alert,
+  Grid,
+  Card,
+  CardContent,
+  Box,
+  useTheme,
+} from '@mui/material';
 import { QRCodeSVG } from 'qrcode.react';
 
 const UserDashboard = () => {
+  const theme = useTheme();
   const [longUrl, setLongUrl] = useState('');
   const [shortUrl, setShortUrl] = useState('');
   const [error, setError] = useState('');
@@ -17,17 +30,27 @@ const UserDashboard = () => {
       return;
     }
     setError('');
-    const generated = 'https://lynkr.io/' + Math.random().toString(36).substring(2, 8);
+    const generated =
+      'https://lynkr.io/' + Math.random().toString(36).substring(2, 8);
     setShortUrl(generated);
     setUrls([{ long: longUrl, short: generated }, ...urls]);
     setLongUrl('');
   };
 
   return (
-    <Container sx={{ mt: 8 }}>
-      <Typography variant="h4" gutterBottom>User Dashboard</Typography>
+    <Container sx={{ mt: 8, mb: 8 }}>
+      <Typography variant="h4" gutterBottom>
+        User Dashboard
+      </Typography>
 
-      <Paper sx={{ p: 4, mb: 4 }}>
+      <Paper
+        sx={{
+          p: 4,
+          mb: 4,
+          bgcolor: theme.palette.background.paper,
+          color: theme.palette.text.primary,
+        }}
+      >
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <TextField
@@ -50,10 +73,18 @@ const UserDashboard = () => {
       <Grid container spacing={3}>
         {urls.map((u, i) => (
           <Grid item xs={12} md={6} key={i}>
-            <Card>
+            <Card
+              sx={{
+                bgcolor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                '&:hover': { boxShadow: 6 },
+              }}
+            >
               <CardContent>
                 <Typography variant="subtitle1">Original: {u.long}</Typography>
-                <Typography variant="subtitle1">Short: <a href={u.short}>{u.short}</a></Typography>
+                <Typography variant="subtitle1">
+                  Short: <a href={u.short}>{u.short}</a>
+                </Typography>
                 <Box sx={{ mt: 2 }}>
                   <QRCodeSVG value={u.short} size={128} />
                 </Box>

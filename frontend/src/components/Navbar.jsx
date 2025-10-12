@@ -1,22 +1,72 @@
-import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import { Link } from 'react-router-dom';
+import React from "react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  Container,
+  IconButton,
+} from "@mui/material";
+import { Link } from "react-router-dom";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
 
-const Navbar = ({ user }) => {
+const Navbar = ({ user, darkMode, toggleDarkMode }) => {
   return (
-    <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Lynkr
-        </Typography>
-        <Box>
-          <Button color="inherit" component={Link} to="/">Home</Button>
-          {!user && <Button color="inherit" component={Link} to="/login">Login</Button>}
-          {!user && <Button color="inherit" component={Link} to="/register">Register</Button>}
-          {user && <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>}
-          {user && user.isAdmin && <Button color="inherit" component={Link} to="/admin">Admin</Button>}
-        </Box>
-      </Toolbar>
+    <AppBar position="static" color="primary" elevation={4}>
+      <Container maxWidth="lg">
+        <Toolbar disableGutters>
+          {/* Logo / Brand */}
+          <Typography
+            variant="h6"
+            component={Link}
+            to="/"
+            sx={{
+              flexGrow: 1,
+              color: "inherit",
+              textDecoration: "none",
+              fontWeight: 700,
+              "&:hover": { color: "secondary.main" },
+            }}
+          >
+            Lynkr
+          </Typography>
+
+          {/* Navigation Buttons */}
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            <Button color="inherit" component={Link} to="/">
+              Home
+            </Button>
+
+            {!user && (
+              <>
+                <Button color="inherit" component={Link} to="/login">
+                  Login
+                </Button>
+                <Button color="inherit" component={Link} to="/register">
+                  Register
+                </Button>
+              </>
+            )}
+            {user && !user.isAdmin && (
+              <Button color="inherit" component={Link} to="/dashboard">
+                Dashboard
+              </Button>
+            )}
+            {user && user.isAdmin && (
+              <Button color="inherit" component={Link} to="/admin">
+                Admin
+              </Button>
+            )}
+
+            {/* Dark Mode Toggle */}
+            <IconButton color="inherit" onClick={toggleDarkMode}>
+              {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </Container>
     </AppBar>
   );
 };
