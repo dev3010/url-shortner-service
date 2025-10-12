@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider, CssBaseline } from '@mui/material';
 import { lightTheme, darkTheme } from './theme';
 import { BrowserRouter } from 'react-router-dom';
 
 const Root = () => {
   const [darkMode, setDarkMode] = useState(false);
-  const toggleDarkMode = () => setDarkMode(prev => !prev);
+
+  const toggleDarkMode = () => setDarkMode(!darkMode);
+
+  const theme = useMemo(() => (darkMode ? darkTheme : lightTheme), [darkMode]);
 
   return (
-    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
         <App darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
