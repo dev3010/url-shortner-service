@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lynkr - Shorten URLs Instantly</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f4f8;
+      color: #333;
+    }
+    .hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 80px 20px;
+      text-align: center;
+      border-radius: 0 0 50% 50% / 10% 10% 0 0;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      margin-top: 20px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .card-auth {
+      max-width: 450px;
+      margin: -60px auto 50px auto;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      background: #fff;
+    }
+    .btn-google {
+      background: rgba(0, 0, 0, 0.125);
+      color: #212529;
+      width: 100%;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      border-radius: inherit
+    }
+    .btn-google img {
+      width: 20px;
+      margin-right: 10px;
+    }
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 60px;
+      margin-bottom: 60px;
+    }
+    .feature-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      padding: 25px;
+      flex: 1 1 250px;
+      max-width: 300px;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .feature-card h4 {
+      margin-top: 15px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .feature-card p {
+      font-size: 0.95rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>Lynkr</h1>
+    <p>Shorten, track, and manage your URLs effortlessly. Sign up to unlock analytics, QR codes, and more premium features!</p>
+  </section>
+
+  <!-- Auth Card -->
+  <div class="card-auth">
+    <h3 class="text-center mb-4">Login / Signup</h3>
+    <form id="auth-form">
+      <div class="mb-3">
+        <input type="email" class="form-control" id="email" placeholder="Email" required>
+      </div>
+      <div class="mb-3">
+        <input type="password" class="form-control" id="password" placeholder="Password" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Sign In / Register</button>
+    </form>
+
+    <button id="google-login" class="btn-google mt-3">
+      <img src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png" alt="Google Logo"> Sign in with Google
+    </button>
+
+    <div id="message" class="mt-3 text-center text-danger"></div>
+  </div>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="feature-card">
+      <h4>Free URL Shortening</h4>
+      <p>Create short, memorable links instantly without any cost.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Analytics Dashboard</h4>
+      <p>Track clicks, locations, and referrers for every link you create.</p>
+    </div>
+    <div class="feature-card">
+      <h4>QR Code Generation</h4>
+      <p>Generate QR codes for your URLs (premium feature for registered users).</p>
+    </div>
+  </section>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseUrl = "{{ supabase_url }}"
+    const supabaseKey = "{{ supabase_anon_key }}"
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey)
+
+    const authForm = document.getElementById('auth-form')
+    const googleBtn = document.getElementById('google-login')
+    const message = document.getElementById('message')
+
+    // Email/Password login or signup
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const email = document.getElementById('email').value
+      const password = document.getElementById('password').value
+
+      // Try sign in first
+      let { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        // If error, try sign up
+        const { data: signupData, error: signupError } = await supabase.auth.signUp({ email, password })
+        if (signupError) {
+          message.textContent = signupError.message
+        } else {
+          message.textContent = "Registration successful! Check your email for confirmation."
+        }
+      } else {
+        message.textContent = "Login successful!"
+        window.location.href = "/dashboard/"
+      }
+    })
+
+    // Google login
+    googleBtn.addEventListener('click', async () => {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + '/dashboard/' }
+      })
+      if (error) message.textContent = error.message
+    })
+  </script>
+
+</body>
+</html>
