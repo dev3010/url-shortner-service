@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -60,7 +60,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR.parent / 'frontend' / 'templates'],  # link to frontend
+        'DIRS': [os.path.join(BASE_DIR, 'frontend', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -86,8 +86,11 @@ DATABASES = {
     }
 }
 
+
+
 # Supabase info (used by JWT validator)
-SUPABASE_URL = os.environ.get("SUPABASE_URL")  # e.g. https://ifefhwlkpxeaneonuvwm.supabase.co
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_ANON_KEY = os.getenv('SUPABASE_ANON_KEY')
 SUPABASE_JWKS_URL = os.environ.get("SUPABASE_JWKS_URL") or f"{SUPABASE_URL}/.well-known/jwks.json"
 SUPABASE_AUD = os.environ.get("SUPABASE_AUD")  # usually your Supabase project REST API audience (optional)
 

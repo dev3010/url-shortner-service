@@ -10,5 +10,5 @@ urlpatterns = [
     # path("api/url/<int:url_id>/qr/", GenerateQRAPIView.as_view(), name="generate_qr"),
     # # redirect - place at root with short code param (catch-all)
     # path("<str:code>/", RedirectView.as_view(), name="redirect"),
-    path('auth/', TemplateView.as_view(template_name='frontend/auth.html'), name='auth')
+    #path('auth/', TemplateView.as_view(template_name='frontend/auth.html'), name='auth')
 ]
