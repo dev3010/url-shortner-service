@@ -8,22 +8,23 @@ import {
   Alert,
   Box,
   Divider,
-  useTheme,
+  CircularProgress,
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GoogleIcon from '@mui/icons-material/Google';
+import axios from 'axios';
 
 const Register = ({ onRegister }) => {
-  const theme = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
 
-  const handleRegisterClick = () => {
+  const handleRegisterClick = async () => {
     if (!email || !password || !confirm) {
       setError('All fields are required.');
       return;
@@ -40,21 +41,38 @@ const Register = ({ onRegister }) => {
       setError('Passwords do not match.');
       return;
     }
-    setError('');
 
-    const userData = { email, isAdmin: false };
-    if (onRegister) onRegister(userData);
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await axios.post('http://localhost:8000/signup/', { email, password });
+      if (response.data && response.data.success) {
+        onRegister({ email, isAdmin: response.data.isAdmin || false });
+      } else {
+        setError(response.data.message || 'Registration failed.');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Server error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGoogleLogin = () => alert('Google login clicked (implement OAuth)');
+  const handleGoogleLogin = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/google-login/');
+      // Redirect to Google OAuth
+      window.location.href = response.data.url;
+    } catch (err) {
+      setError('Google login failed.');
+    }
+  };
 
   return (
     <Container sx={{ mt: 8, maxWidth: 400 }}>
-      <Paper sx={{ p: 4, bgcolor: theme.palette.background.paper }}>
-        <Typography variant="h5" mb={3} textAlign="center">
-          Register
-        </Typography>
-
+      <Paper sx={{ p: 4 }}>
+        <Typography variant="h5" mb={2} textAlign="center">Register</Typography>
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
         <TextField
@@ -87,8 +105,10 @@ const Register = ({ onRegister }) => {
           fullWidth
           sx={{ mb: 2 }}
           onClick={handleRegisterClick}
+          disabled={loading}
+          startIcon={loading && <CircularProgress color="inherit" size={20} />}
         >
-          Register
+          {loading ? 'Registering...' : 'Register'}
         </Button>
 
         <Divider sx={{ my: 2 }}>OR</Divider>
@@ -108,7 +128,7 @@ const Register = ({ onRegister }) => {
             Already have an account?{' '}
             <Link
               to="/login"
-              style={{ textDecoration: 'none', color: theme.palette.primary.main, fontWeight: 500 }}
+              style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 500 }}
             >
               Click here to login
             </Link>

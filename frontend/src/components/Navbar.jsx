@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 
-const Navbar = ({ user, darkMode, toggleDarkMode }) => {
+const Navbar = ({ user, onLogout, darkMode, toggleDarkMode }) => {
   return (
     <AppBar position="static" color="primary" elevation={4}>
       <Container maxWidth="lg">
@@ -39,6 +39,7 @@ const Navbar = ({ user, darkMode, toggleDarkMode }) => {
               Home
             </Button>
 
+            {/* Public links */}
             {!user && (
               <>
                 <Button color="inherit" component={Link} to="/login">
@@ -49,15 +50,28 @@ const Navbar = ({ user, darkMode, toggleDarkMode }) => {
                 </Button>
               </>
             )}
+
+            {/* Logged-in user links */}
             {user && !user.isAdmin && (
-              <Button color="inherit" component={Link} to="/dashboard">
-                Dashboard
-              </Button>
+              <>
+                <Button color="inherit" component={Link} to="/dashboard">
+                  Dashboard
+                </Button>
+                <Button color="inherit" onClick={onLogout}>
+                  Logout
+                </Button>
+              </>
             )}
+
             {user && user.isAdmin && (
-              <Button color="inherit" component={Link} to="/admin">
-                Admin
-              </Button>
+              <>
+                <Button color="inherit" component={Link} to="/admin">
+                  Admin
+                </Button>
+                <Button color="inherit" onClick={onLogout}>
+                  Logout
+                </Button>
+              </>
             )}
 
             {/* Dark Mode Toggle */}
