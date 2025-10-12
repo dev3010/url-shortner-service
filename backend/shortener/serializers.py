@@ -5,13 +5,19 @@ from .models import URL, Analytics, QRCode
 class URLSerializer(serializers.ModelSerializer):
     class Meta:
         model = URL
-        fields = ["id","user_id","original_url","short_code","short_url","is_active","click_count","created_at","expiry_date"]
+        fields = '__all__'
 
-class CreateURLSerializer(serializers.Serializer):
-    original_url = serializers.URLField()
-    custom_code = serializers.CharField(required=False, allow_blank=True, max_length=30)
+class CreateURLSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = URL
+        fields = ['original_url', 'user_id']
 
 class AnalyticsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Analytics
-        fields = ["id","url_id","timestamp","ip_address","user_agent","referrer","location"]
+        fields = '__all__'
+
+class QRCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QRCode
+        fields = '__all__'

@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
+from supabase import create_client, Client
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "rest_framework",
+    'drf_yasg',
     "shortener",
 ]
 
@@ -91,6 +93,7 @@ DATABASES = {
 # Supabase info (used by JWT validator)
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_ANON_KEY = os.getenv('SUPABASE_ANON_KEY')
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
 SUPABASE_JWKS_URL = os.environ.get("SUPABASE_JWKS_URL") or f"{SUPABASE_URL}/.well-known/jwks.json"
 SUPABASE_AUD = os.environ.get("SUPABASE_AUD")  # usually your Supabase project REST API audience (optional)
 

@@ -1,26 +1,24 @@
-"""
-URL configuration for urlshortner project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
-from shortener.views import auth_view
+from shortener.views import google_login, login, signup
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+
+# Swagger schema setup
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Lynkr API",
+      default_version='v1',
+      description="API docs for URL shortener",
+   ),
+   public=True,
+   permission_classes=[permissions.AllowAny],
+)
 
 urlpatterns = [
-    path('auth/', auth_view, name='auth'),
-    path("", include("shortener.urls")),
+    path('admin/', admin.site.urls),
+    path('api/', include('shortener.urls')),  # all API endpoints will be defined in shortener/urls.py
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
-   
-

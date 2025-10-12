@@ -1,19 +1,19 @@
 # shortener/utils.py
-import random
-import string
-import io
+
+import string, random, qrcode
 import base64
-import qrcode
-from django.conf import settings
+from io import BytesIO
 
 def generate_short_code(length=6):
     chars = string.ascii_letters + string.digits
-    return ''.join(random.choices(chars, k=length))
+    return ''.join(random.choice(chars) for _ in range(length))
 
-def generate_qr_base64(text):
-    # creates a PNG image and returns base64 string
-    img = qrcode.make(text)
-    buffered = io.BytesIO()
-    img.save(buffered, format="PNG")
-    img_b64 = base64.b64encode(buffered.getvalue()).decode()
-    return f"data:image/png;base64,{img_b64}"
+def generate_qr_base64(url):
+    qr = qrcode.QRCode(version=1, box_size=10, border=4)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    img_str = base64.b64encode(buffer.getvalue()).decode()
+    return f"data:image/png;base64,{img_str}"
