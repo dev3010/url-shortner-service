@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -9,18 +9,39 @@ import UserDashboard from './components/UserDashboard';
 import AdminDashboard from './components/AdminDashboard';
 
 function App({ darkMode, toggleDarkMode }) {
-  const [user, setUser] = useState(null); // null = not logged in
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  const handleLogin = (userData) => {
+  // Persist login on page reload
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const email = localStorage.getItem('email');
+    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    if (token && email) {
+      setUser({ email, isAdmin });
+    }
+  }, []);
+
+  const handleLogin = (userData, token) => {
     setUser(userData);
+    localStorage.setItem('token', token);
+    localStorage.setItem('email', userData.email);
+    localStorage.setItem('isAdmin', userData.isAdmin);
     if (userData.isAdmin) navigate('/admin');
     else navigate('/dashboard');
   };
 
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('email');
+    localStorage.removeItem('isAdmin');
+    navigate('/login');
+  };
+
   return (
     <>
-      <Navbar user={user} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+      <Navbar user={user} onLogout={handleLogout} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage user={user} />} />

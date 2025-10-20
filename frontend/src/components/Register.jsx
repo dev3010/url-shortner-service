@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Container,
   Paper,
@@ -9,71 +9,81 @@ import {
   Box,
   Divider,
   CircularProgress,
-} from '@mui/material';
-import { Link } from 'react-router-dom';
-import GoogleIcon from '@mui/icons-material/Google';
-import axios from 'axios';
+} from "@mui/material";
+import { Link } from "react-router-dom";
+import GoogleIcon from "@mui/icons-material/Google";
+import { signup, googleLogin } from "../api";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { InputAdornment, IconButton } from "@mui/material";
 
 const Register = ({ onRegister }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const handleRegisterClick = async () => {
     if (!email || !password || !confirm) {
-      setError('All fields are required.');
+      setError("All fields are required.");
       return;
     }
     if (!emailRegex.test(email)) {
-      setError('Enter a valid email address.');
+      setError("Enter a valid email");
       return;
     }
     if (!passwordRegex.test(password)) {
-      setError('Password must be at least 6 characters, contain one uppercase letter and one number.');
+      setError("Password must be 6+ chars, one uppercase, one number");
       return;
     }
     if (password !== confirm) {
-      setError('Passwords do not match.');
+      setError("Passwords do not match");
       return;
     }
 
-    setError('');
+    setError("");
     setLoading(true);
-
     try {
-      const response = await axios.post('http://localhost:8000/signup/', { email, password });
-      if (response.data && response.data.success) {
-        onRegister({ email, isAdmin: response.data.isAdmin || false });
+      const data = await signup(email, password);
+      if (data.message) {
+        const isAdmin = email === "admin@example.com";
+        onRegister({ email, isAdmin }, data.access_token || "");
       } else {
-        setError(response.data.message || 'Registration failed.');
+        setError(data.error || "Registration failed");
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Server error. Please try again.');
+      setError("Server error. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLoginClick = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/google-login/');
-      // Redirect to Google OAuth
-      window.location.href = response.data.url;
+      const data = await googleLogin();
+      window.location.href = data.google_login_url;
     } catch (err) {
-      setError('Google login failed.');
+      setError("Google login failed.");
     }
   };
 
   return (
     <Container sx={{ mt: 8, maxWidth: 400 }}>
       <Paper sx={{ p: 4 }}>
-        <Typography variant="h5" mb={2} textAlign="center">Register</Typography>
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        <Typography variant="h5" mb={2} textAlign="center">
+          Register
+        </Typography>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
 
         <TextField
           label="Email"
@@ -84,21 +94,45 @@ const Register = ({ onRegister }) => {
         />
         <TextField
           label="Password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           fullWidth
           sx={{ mb: 2 }}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
+
         <TextField
           label="Confirm Password"
-          type="password"
+          type={showConfirm ? "text" : "password"}
           fullWidth
           sx={{ mb: 2 }}
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  edge="end"
+                >
+                  {showConfirm ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
-
         <Button
           variant="contained"
           color="primary"
@@ -108,7 +142,7 @@ const Register = ({ onRegister }) => {
           disabled={loading}
           startIcon={loading && <CircularProgress color="inherit" size={20} />}
         >
-          {loading ? 'Registering...' : 'Register'}
+          {loading ? "Registering..." : "Register"}
         </Button>
 
         <Divider sx={{ my: 2 }}>OR</Divider>
@@ -118,17 +152,21 @@ const Register = ({ onRegister }) => {
           startIcon={<GoogleIcon />}
           fullWidth
           sx={{ mb: 2 }}
-          onClick={handleGoogleLogin}
+          onClick={handleGoogleLoginClick}
         >
           Sign in with Google
         </Button>
 
         <Box textAlign="center">
           <Typography variant="body2">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link
               to="/login"
-              style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 500 }}
+              style={{
+                textDecoration: "none",
+                color: "#1976d2",
+                fontWeight: 500,
+              }}
             >
               Click here to login
             </Link>
