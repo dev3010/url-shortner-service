@@ -41,7 +41,12 @@ function App({ darkMode, toggleDarkMode }) {
 
   return (
     <>
-      <Navbar user={user} onLogout={handleLogout} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+      <Navbar
+        user={user}
+        onLogout={handleLogout}
+        darkMode={darkMode}
+        toggleDarkMode={toggleDarkMode}
+      />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage user={user} />} />

@@ -10,22 +10,42 @@ import {
   Grid,
   Card,
   CardContent,
+  CircularProgress,
 } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { shortenURL } from '../api'; // import the API function
 
 const LandingPage = ({ user }) => {
   const [longUrl, setLongUrl] = useState('');
   const [shortUrl, setShortUrl] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleShorten = () => {
+  const handleShorten = async () => {
     if (!longUrl) {
       setError('Please enter a valid URL');
       return;
     }
+
     setError('');
-    const generated = 'https://lynkr.io/' + Math.random().toString(36).substring(2, 8);
-    setShortUrl(generated);
+    setShortUrl('');
+    setLoading(true);
+
+    try {
+      const response = await shortenURL(longUrl);
+
+      if (response.error) {
+        setError(response.error);
+      } else if (response.short_url) {
+        setShortUrl(response.short_url);
+      } else {
+        setError('Unexpected error. Please try again.');
+      }
+    } catch (err) {
+      setError('Failed to shorten URL. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -72,8 +92,13 @@ const LandingPage = ({ user }) => {
               value={longUrl}
               onChange={(e) => setLongUrl(e.target.value)}
             />
-            <Button variant="contained" color="primary" onClick={handleShorten}>
-              Shorten
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleShorten}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} /> : 'Shorten'}
             </Button>
           </Box>
           {shortUrl && (

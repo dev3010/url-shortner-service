@@ -33,8 +33,8 @@ const Navbar = ({ user, onLogout, darkMode, toggleDarkMode }) => {
             Lynkr
           </Typography>
 
-          {/* Navigation Buttons */}
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            {/* Home link always visible */}
             <Button color="inherit" component={Link} to="/">
               Home
             </Button>
@@ -51,7 +51,7 @@ const Navbar = ({ user, onLogout, darkMode, toggleDarkMode }) => {
               </>
             )}
 
-            {/* Logged-in user links */}
+            {/* Logged-in regular user */}
             {user && !user.isAdmin && (
               <>
                 <Button color="inherit" component={Link} to="/dashboard">
@@ -63,6 +63,7 @@ const Navbar = ({ user, onLogout, darkMode, toggleDarkMode }) => {
               </>
             )}
 
+            {/* Admin user */}
             {user && user.isAdmin && (
               <>
                 <Button color="inherit" component={Link} to="/admin">
