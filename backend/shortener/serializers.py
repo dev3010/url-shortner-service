@@ -2,22 +2,14 @@
 from rest_framework import serializers
 from .models import URL, Analytics, QRCode
 
-class URLSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = URL
-        fields = '__all__'
+from rest_framework import serializers
 
-class CreateURLSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = URL
-        fields = ['original_url', 'user_id']
+class SignupSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True, min_length=6)
 
-class AnalyticsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Analytics
-        fields = '__all__'
 
-class QRCodeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = QRCode
-        fields = '__all__'
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True, min_length=6)
+
