@@ -46,5 +46,5 @@ It provides a seamless experience for users to shorten URLs, track analytics, ge
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/your-username/lynkr.git
+git clone [https://github.com/your-username/lynkr.git](https://github.com/dev3010/url-shortner-service.git)
 cd lynkr
