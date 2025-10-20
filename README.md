@@ -38,7 +38,29 @@ It provides a seamless experience for users to shorten URLs, track analytics, ge
 ✅ Track link analytics and traffic stats  
 ✅ Download **QR codes** for your URLs  
 ✅ Admin dashboard for monitoring and data control  
-✅ Clean, responsive, and modern UI built with Material UI  
+✅ Clean, responsive, and modern UI built with Material UI
+
+---
+
+## 🖼️ Screenshots & Demo
+
+Here are some examples of Lynkr’s interface:
+
+### 🌐 Landing Page
+![Landing Page](./screenshots/landing_page.png)  
+Quickly shorten URLs and explore features.
+
+### 📊 User Dashboard
+![User Dashboard](./screenshots/user_dashboard.png)  
+Manage, update, activate/deactivate, or delete your shortened URLs.
+
+### 📈 Analytics View
+![Analytics](./screenshots/analytics.png)  
+Track clicks, monitor traffic trends, and gain insights.
+
+### 🧾 QR Generator
+![QR Code](./screenshots/qr_generator.png)  
+Generate and download QR codes for any shortened URL.
 
 ---
 
@@ -46,5 +68,24 @@ It provides a seamless experience for users to shorten URLs, track analytics, ge
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone [https://github.com/your-username/lynkr.git](https://github.com/dev3010/url-shortner-service.git)
+git clone https://github.com/dev3010/url-shortner-service.git
 cd lynkr
+
+### 2️⃣ Clone the Repository
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+
+### 3️⃣ Frontend Setup (React)
+```bash
+cd frontend
+npm install
+npm start
+
+🧑‍💻 Contributors
+
+👨‍💻 Devesh — Developer & Project Maintainer
