@@ -14,9 +14,13 @@ from datetime import datetime, timezone
 import qrcode
 import base64
 from io import BytesIO
+import jwt
+import os
 
 # ---------------- Supabase client ----------------
 supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_ANON_KEY)
+SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET")
+
 
 # ---------------- Utility ----------------
 def generate_short_code(length=6):
@@ -84,7 +88,8 @@ def login(request):
             return Response({
                 "message": "Login successful",
                 "access_token": response.session.access_token,
-                "user": response.user.email
+                "user": response.user.email,
+                "user_id": response.user.id
             })
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -123,23 +128,37 @@ class GuestURLViewSet(viewsets.ViewSet):
         if not original_url:
             return Response({"error": "original_url is required"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Get user_id (optional, sent from frontend if user is logged in)
+        user_id = request.data.get("user_id")
+
+        # Determine user type
+        user_type = "registered" if user_id else "guest"
+
+        # Generate short code and short URL
         short_code = generate_short_code()
         short_url = f"http://localhost:8000/{short_code}"
 
-        response = supabase.table("urls").insert({
+        # Prepare record to insert
+        record = {
             "original_url": original_url,
             "short_code": short_code,
             "short_url": short_url,
-            "user_id": None,
+            "user_id": user_id if user_id else None,
             "created_at": datetime.now(timezone.utc).isoformat(),
             "is_active": True,
             "click_count": 0
-        }).execute()
+        }
+
+        # Insert into Supabase
+        response = supabase.table("urls").insert(record).execute()
 
         if not response or not response.data:
             return Response({"error": "Failed to insert URL"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response(response.data[0], status=status.HTTP_201_CREATED)
+        # Success response
+        data = response.data[0]
+        data["user_type"] = user_type
+        return Response(data, status=status.HTTP_201_CREATED)
 
 # ---------------- Redirect Short URL ----------------
 @api_view(['GET'])

@@ -20,7 +20,7 @@ urlpatterns = [
     path('auth/google-login/', google_login, name='google-login'),
 
     # GUEST SHORTENER
-    path('api/guest/shorten/', guest_url_create, name='guest-shorten'),
+    path('api/shorten/', guest_url_create, name='guest-shorten'),
 
     # USER PREMIUM FEATURES
     path('api/user/analytics/', user_analytics, name='user-analytics'),

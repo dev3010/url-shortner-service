@@ -24,10 +24,32 @@ export async function googleLogin() {
 }
 
 export async function shortenURL(original_url) {
-  const res = await fetch(`${API_BASE}/api/guest/shorten/`, {
+  const user_id = localStorage.getItem("user_id"); // saved at login
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  const body = {
+    original_url,
+  };
+
+  // If user_id exists (logged-in user), include it in the payload
+  if (user_id) {
+    body.user_id = user_id;
+  }
+
+  const res = await fetch(`${API_BASE}/api/shorten/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ original_url }),
+    headers,
+    body: JSON.stringify(body),
   });
+
   return res.json();
 }
+
+export const getUserAnalytics = async (token) => {
+  const response = await fetch(`${API_BASE}/api/user/analytics/`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response; 
+};

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -13,7 +13,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { QRCodeSVG } from "qrcode.react";
-import { shortenURL } from "../api"; // reuse same backend call
+import { shortenURL, getUserAnalytics } from "../api";
 
 const UserDashboard = ({ user }) => {
   const [longUrl, setLongUrl] = useState("");
@@ -21,7 +21,26 @@ const UserDashboard = ({ user }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [urls, setUrls] = useState([]);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
 
+  // 🔹 Fetch user analytics when component mounts
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      if (!user?.token) return;
+      setLoadingAnalytics(true);
+      try {
+        const response = await getUserAnalytics(user.token);
+        setUrls(response?.data || []);
+      } catch (err) {
+        setError("Failed to load analytics. Please try again.");
+      } finally {
+        setLoadingAnalytics(false);
+      }
+    };
+    fetchAnalytics();
+  }, [user]);
+
+  // 🔹 Handle new URL shortening
   const handleShorten = async () => {
     if (!longUrl.trim()) {
       setError("Please enter a valid URL");
@@ -33,13 +52,18 @@ const UserDashboard = ({ user }) => {
     setLoading(true);
 
     try {
-      const response = await shortenURL(longUrl, user?.token);
+      const response = await shortenURL(longUrl);
 
       if (response.error) {
         setError(response.error);
       } else if (response.short_url) {
         setShortUrl(response.short_url);
-        setUrls([{ long: longUrl, short: response.short_url }, ...urls]);
+        setUrls([{ 
+          long_url: longUrl, 
+          short_url: response.short_url, 
+          click_count: 0, 
+          created_at: new Date().toISOString() 
+        }, ...urls]);
         setLongUrl("");
       } else {
         setError("Unexpected error. Please try again.");
@@ -80,16 +104,24 @@ const UserDashboard = ({ user }) => {
 
         {shortUrl && (
           <Alert severity="success" sx={{ mt: 2 }}>
-            Short URL: <a href={shortUrl}>{shortUrl}</a>
+            Short URL:{" "}
+            <a href={shortUrl} target="_blank" rel="noopener noreferrer">
+              {shortUrl}
+            </a>
           </Alert>
         )}
       </Paper>
 
-      {/* User’s shortened URLs */}
+      {/* User’s shortened URLs with analytics */}
       <Typography variant="h5" sx={{ mb: 3 }}>
         Your Links
       </Typography>
-      {urls.length === 0 ? (
+
+      {loadingAnalytics ? (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+          <CircularProgress />
+        </Box>
+      ) : urls.length === 0 ? (
         <Typography color="text.secondary">
           No shortened URLs yet. Start by creating one above!
         </Typography>
@@ -105,16 +137,24 @@ const UserDashboard = ({ user }) => {
               >
                 <CardContent>
                   <Typography variant="subtitle1" sx={{ wordBreak: "break-all" }}>
-                    <strong>Original:</strong> {u.long}
+                    <strong>Original:</strong> {u.long_url}
                   </Typography>
                   <Typography variant="subtitle1">
                     <strong>Short:</strong>{" "}
-                    <a href={u.short} target="_blank" rel="noopener noreferrer">
-                      {u.short}
+                    <a href={u.short_url} target="_blank" rel="noopener noreferrer">
+                      {u.short_url}
                     </a>
                   </Typography>
+                  <Typography sx={{ mt: 1 }}>
+                    <strong>Clicks:</strong> {u.click_count ?? 0}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    <strong>Created:</strong>{" "}
+                    {new Date(u.created_at).toLocaleString()}
+                  </Typography>
+
                   <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
-                    <QRCodeSVG value={u.short} size={100} />
+                    <QRCodeSVG value={u.short_url} size={100} />
                   </Box>
                 </CardContent>
               </Card>

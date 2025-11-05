@@ -38,7 +38,7 @@ const Login = ({ onLogin }) => {
       const data = await login(email, password);
       if (data.access_token) {
         const isAdmin = email === "admin@example.com";
-        onLogin({ email, isAdmin }, data.access_token);
+        onLogin({ email, isAdmin }, data.user_id ,data.access_token);
       } else {
         setError(data.error || "Login failed");
       }
