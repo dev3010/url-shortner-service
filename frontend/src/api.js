@@ -48,8 +48,31 @@ export async function shortenURL(original_url) {
 }
 
 export const getUserAnalytics = async (token) => {
-  const response = await fetch(`${API_BASE}/api/user/analytics/`, {
+  const res = await fetch(`${API_BASE}/api/user/analytics/`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  return response; 
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch analytics");
+  }
+
+  // ✅ Parse and return the actual JSON data
+  return await res.json();
 };
+
+
+export async function deleteURL(id, token) {
+  const res = await fetch(`${API_BASE}/api/urls/${id}/`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.ok;
+}
+
+export async function toggleActiveURL(id, token) {
+  const res = await fetch(`${API_BASE}/api/urls/${id}/toggle_active/`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.json();
+}

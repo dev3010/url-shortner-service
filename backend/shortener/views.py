@@ -201,7 +201,10 @@ def user_analytics(request):
                 "short_url": url['short_url'],
                 "original_url": url['original_url'],
                 "click_count": url['click_count'],
-                "analytics": getattr(clicks_resp, "data", [])
+                #"analytics": getattr(clicks_resp, "data", []),
+                "is_active": url['is_active'],
+                "created_at": url['created_at'],
+                "id": url['id']
             })
 
         return Response({"data": analytics_data}, status=status.HTTP_200_OK)
@@ -275,3 +278,4 @@ def update_url(request):
         return Response({"message": "URL updated successfully"}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
