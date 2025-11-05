@@ -7,6 +7,8 @@ import {
   Box,
   Container,
   IconButton,
+  Avatar,
+  Tooltip,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
@@ -16,14 +18,13 @@ const Navbar = ({ user, onLogout, darkMode, toggleDarkMode }) => {
   return (
     <AppBar position="static" color="primary" elevation={4}>
       <Container maxWidth="lg">
-        <Toolbar disableGutters>
-          {/* Logo / Brand */}
+        <Toolbar disableGutters sx={{ display: "flex", justifyContent: "space-between" }}>
+          {/* Brand / Logo */}
           <Typography
             variant="h6"
             component={Link}
             to="/"
             sx={{
-              flexGrow: 1,
               color: "inherit",
               textDecoration: "none",
               fontWeight: 700,
@@ -33,13 +34,13 @@ const Navbar = ({ user, onLogout, darkMode, toggleDarkMode }) => {
             Lynkr
           </Typography>
 
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             {/* Home link always visible */}
             <Button color="inherit" component={Link} to="/">
               Home
             </Button>
 
-            {/* Public links */}
+            {/* If no user logged in */}
             {!user && (
               <>
                 <Button color="inherit" component={Link} to="/login">
@@ -51,24 +52,25 @@ const Navbar = ({ user, onLogout, darkMode, toggleDarkMode }) => {
               </>
             )}
 
-            {/* Logged-in regular user */}
-            {user && !user.isAdmin && (
+            {/* Logged-in user (regular or admin) */}
+            {user && (
               <>
                 <Button color="inherit" component={Link} to="/dashboard">
                   Dashboard
                 </Button>
-                <Button color="inherit" onClick={onLogout}>
-                  Logout
-                </Button>
-              </>
-            )}
 
-            {/* Admin user */}
-            {user && user.isAdmin && (
-              <>
-                <Button color="inherit" component={Link} to="/admin">
-                  Admin
-                </Button>
+                {/* Display logged-in user's email */}
+                <Tooltip title={`Logged in as ${user.email}`}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Avatar sx={{ width: 28, height: 28, bgcolor: "secondary.main" }}>
+                      {user.email[0].toUpperCase()}
+                    </Avatar>
+                    <Typography variant="body2" sx={{ color: "inherit" }}>
+                      Hi, {user.email.split("@")[0]}
+                    </Typography>
+                  </Box>
+                </Tooltip>
+
                 <Button color="inherit" onClick={onLogout}>
                   Logout
                 </Button>

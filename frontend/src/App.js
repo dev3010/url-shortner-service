@@ -13,6 +13,11 @@ function App({ darkMode, toggleDarkMode }) {
   const navigate = useNavigate();
 
   // Persist login on page reload
+  const handleLoginSuccess = (data) => {
+  setUser({ email: data.user, token: data.access_token });
+  localStorage.setItem("user", JSON.stringify({ email: data.user, token: data.access_token }));
+};
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const email = localStorage.getItem('email');
