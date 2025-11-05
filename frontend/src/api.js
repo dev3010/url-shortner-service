@@ -61,18 +61,22 @@ export const getUserAnalytics = async (token) => {
 };
 
 
-export async function deleteURL(id, token) {
-  const res = await fetch(`${API_BASE}/api/urls/${id}/`, {
+export async function deleteURL(id) {
+    const user_id = localStorage.getItem("user_id"); // saved at login
+
+  const res = await fetch(`${API_BASE}/api/urls/${id}/?user_id=${user_id}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
   });
   return res.ok;
 }
 
-export async function toggleActiveURL(id, token) {
+export async function toggleActiveURL(id) {
+    const user_id = localStorage.getItem("user_id"); // saved at login
+
   const res = await fetch(`${API_BASE}/api/urls/${id}/toggle_active/`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id }),
   });
   return res.json();
 }

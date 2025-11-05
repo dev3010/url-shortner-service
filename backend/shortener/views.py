@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, permissions
 from rest_framework.permissions import AllowAny
 # from drf_yasg.utils import swagger_auto_schema
 # from drf_yasg import openapi
@@ -16,10 +16,10 @@ import base64
 from io import BytesIO
 import jwt
 import os
-
+from rest_framework.views import APIView
 # ---------------- Supabase client ----------------
 supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_ANON_KEY)
-SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET")
+# SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET")
 
 
 # ---------------- Utility ----------------
@@ -279,3 +279,62 @@ def update_url(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class DeleteURLView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def delete(self, request, pk):
+        user_id = request.query_params.get("user_id") or request.data.get("user_id")
+
+        if not user_id:
+            return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Fetch the URL record
+        url_resp = supabase.table("urls").select("*").eq("id", pk).execute()
+        if not url_resp.data:
+            return Response({"error": "URL not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        url = url_resp.data[0]
+        if str(url.get("user_id")) != str(user_id):
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        # Delete URL
+        supabase.table("urls").delete().eq("id", pk).execute()
+        return Response({"message": "URL deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+# ✅ TOGGLE ACTIVE / INACTIVE API
+class ToggleActiveURLView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, pk):
+        user_id = request.data.get("user_id")
+
+        if not user_id:
+            return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Fetch record
+        url_resp = supabase.table("urls").select("*").eq("id", pk).execute()
+        if not url_resp.data:
+            return Response({"error": "URL not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        url = url_resp.data[0]
+        if str(url.get("user_id")) != str(user_id):
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        # Toggle the `is_active` flag
+        new_status = not url.get("is_active", True)
+        update_resp = supabase.table("urls").update({"is_active": new_status}).eq("id", pk).execute()
+
+        if not update_resp or not update_resp.data:
+            return Response({"error": "Failed to update URL status"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        updated = update_resp.data[0]
+        return Response(
+            {
+                "id": updated["id"],
+                "is_active": updated["is_active"],
+                "short_url": updated["short_url"],
+                "message": "URL status toggled successfully",
+            },
+            status=status.HTTP_200_OK,
+        )

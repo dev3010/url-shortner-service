@@ -90,7 +90,7 @@ const UserDashboard = ({ user }) => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this link?")) return;
     try {
-      await deleteURL(id, token);
+      await deleteURL(id);
       setUrls(urls.filter((u) => u.id !== id));
     } catch (err) {
       console.error(err);
@@ -101,7 +101,7 @@ const UserDashboard = ({ user }) => {
   // 🔄 Toggle active/inactive
   const handleToggleActive = async (id, currentStatus) => {
     try {
-      await toggleActiveURL(id, token);
+      await toggleActiveURL(id);
       setUrls((prev) =>
         prev.map((u) =>
           u.id === id ? { ...u, is_active: !currentStatus } : u
