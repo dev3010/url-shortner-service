@@ -8,9 +8,7 @@ from .views import (
     user_analytics,
     generate_qr,
     user_urls,
-    update_url,
-    DeleteURLView, 
-    ToggleActiveURLView
+    update_url
 )
 
 guest_url_create = GuestURLViewSet.as_view({'post': 'create'})
@@ -33,6 +31,6 @@ urlpatterns = [
     # REDIRECT HANDLER (always at end)
     path('<str:short_code>/', redirect_short_url, name='redirect_short_url'),
 
-    path("api/urls/<int:pk>/", DeleteURLView.as_view(), name="delete_url"),
-    path("api/urls/<int:pk>/toggle_active/", ToggleActiveURLView.as_view(), name="toggle_active_url"),
+    # path("api/urls/<int:pk>/", DeleteURLView.as_view(), name="delete_url"),
+    # path("api/urls/<int:pk>/toggle_active/", ToggleActiveURLView.as_view(), name="toggle_active_url"),
 ]
